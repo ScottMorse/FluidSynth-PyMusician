@@ -21,7 +21,7 @@ fl = fluidsynth.Synth()
 sfid = fl.sfload(SOUNDFONT_FILE)
 
 for ch in range(PARTS):
-    fl.program_select(ch, sfid, 0, 25)
+    fl.program_select(ch, sfid, 0, 24)
 
 class TurnOffLater(Thread):
 
@@ -61,7 +61,7 @@ def play_notes(*notes,velocity=100,last=False):
             if previous < rhythm_val:
                 rhythm_len = (60 / TEMPO) * (note.rhythm.value / 128) 
                 proportion_to_prev = (rhythm_len - ((60 / TEMPO) * (previous / 128))) / rhythm_len
-                TurnOffLater(midi_val,(60 / TEMPO) * (note.rhythm.value / 128) * proportion_to_prev).start()
+                TurnOffLater(midi_val,(60 / TEMPO) * (note.rhythm.value / 128) * 0.9).start()
             else:
                 fl.noteoff(0,midi_val)
         else:
@@ -74,11 +74,20 @@ def play_notes(*notes,velocity=100,last=False):
 
 if __name__ == "__main__":
 
-    play_notes(pm.Note('C',4,'2'),pm.Note('E',4,'3'))
-    play_notes(pm.Note('D',4,'3'),pm.Note('F',4,'3'))
-    play_notes(pm.Note('E',4,'3'),pm.Note('G',4,'3'))
-    play_notes(pm.Note('F',4,'3'),pm.Note('B',4,'3'))
-    play_notes(pm.Note('E',4,'3'),pm.Note('C',5,'3'),last=True)
+    import bach_prelude_bb_minor as song
+
+    vel = 70
+    vel_dir = True
+    for note_group in song.notes:
+        play_notes(*[pm.Note(*note_deets) for note_deets in note_group],velocity=vel)
+        if vel > 126:
+            vel_dir = False
+        if vel < 70:
+            vel_dir = True
+        if vel_dir:
+            vel_dir -= 1
+        else:
+            vel_dir += 1
 
 fl.delete()
 strm.close()
