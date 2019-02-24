@@ -2,7 +2,6 @@ import time
 import numpy as np
 import pyaudio
 import fluidsynth
-import pymusician as pm
 from threading import Thread
 
 SAMPLE_RATE = 44100
@@ -68,26 +67,22 @@ def play_notes(*notes,velocity=100,last=False):
             fl.noteoff(0,midi_val)
         previous = rhythm_val
 
-    samples = np.append(samples,fl.get_samples(round(SAMPLE_RATE * (0.02 if not last else 2))))
+    samples = np.append(samples,fl.get_samples(round(SAMPLE_RATE * (0.02 if not last else 1))))
 
     strm.write(fluidsynth.raw_audio_string(samples))
 
 if __name__ == "__main__":
-
+    import pymusician as pm
     import bach_prelude_bb_minor as song
 
-    vel = 70
-    vel_dir = True
-    for note_group in song.notes:
-        play_notes(*[pm.Note(*note_deets) for note_deets in note_group],velocity=vel)
-        if vel > 126:
-            vel_dir = False
-        if vel < 70:
-            vel_dir = True
-        if vel_dir:
-            vel_dir -= 1
-        else:
-            vel_dir += 1
+    note_groups = [[pm.Note(*note_deets) for note_deets in note_data] for note_data in song.notes]
+    ng_len = len(note_groups)
+
+    _last = False
+    for i in range(ng_len):
+        if i == ng_len - 1:
+            _last = True
+        play_notes(*note_groups[i],velocity=70,last=_last)
 
 fl.delete()
 strm.close()
