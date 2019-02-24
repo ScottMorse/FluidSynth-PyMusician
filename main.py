@@ -7,7 +7,6 @@ from threading import Thread
 SAMPLE_RATE = 44100
 TEMPO = 120
 SOUNDFONT_FILE = "niceKeys23.sf2"
-PARTS = 3
 
 pa = pyaudio.PyAudio()
 strm = pa.open(
@@ -19,8 +18,7 @@ strm = pa.open(
 fl = fluidsynth.Synth()
 sfid = fl.sfload(SOUNDFONT_FILE)
 
-for ch in range(PARTS):
-    fl.program_select(ch, sfid, 0, 24)
+fl.program_select(0, sfid, 0, 24)
 
 class TurnOffLater(Thread):
 
